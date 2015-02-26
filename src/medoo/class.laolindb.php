@@ -1,0 +1,1 @@
+<?phprequire 'medoo.php';class laolinDb extends medoo {  public function __construct() {    $optn=[        'database_type' => 'mysql',        'database_name' => DBNAME,        'server' => DBSERVER,        'port' => DBPORT,        'username' => DBUSER,        'password' => DBPASS,        'charset' => 'utf8'      ];    parent::__construct($optn);  }}
