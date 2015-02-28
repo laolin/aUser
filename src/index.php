@@ -24,7 +24,10 @@ $GLOBALS['time']=Date('Y-m-d H:i:s');
 
 function echoRestfulData($data,$jsonp='') {
   if( !headers_sent() ) {
-    if(strlen($jsonp)>0) header('Content-type: application/javascript; charset=utf-8');
+    if(strlen($jsonp) == 0 && isset($_REQUEST['jsonp']) && strlen($_REQUEST['jsonp'])>0)
+      $jsonp=$_REQUEST['jsonp'];
+    if(strlen($jsonp)>0)
+      header('Content-type: application/javascript; charset=utf-8');
     else header('Content-type: application/json; charset=utf-8');
     header("Expires: Thu, 01 Jan 1970 00:00:01 GMT");
     header("Cache-Control: no-cache, must-revalidate");
@@ -97,7 +100,12 @@ class SplashHandler{
 /*
 api: books
 api: books/id // :number
-
+  【注：所有API可用的参数】
+  jsonp: 可选，有效的可执行函数名，可用于跨域名调用等。
+    例如:jsonp=alert, jsonp=console.log, jsonp=some_valid_func 。
+    指定了jsonp以后，返回的header中 Content-type: application/javascript;
+    其他情况返回header中 Content-type: application/json;
+    
 method: get
   【功能】 列表
   无id时，列出一页。
