@@ -77,7 +77,8 @@
     
         <div class="panel-heading">Api Result: <a class='label label-info' id='api-status'>NO Result</a></div>
         <div class="panel-body">
-          <p id='api-result-info'></p>
+          <p id='api-method'></p>
+          <p id='api-url'></p>
           <p id='api-result-content'></p>
         </div>
       </div>
@@ -96,17 +97,17 @@ function ajax(type) {
 
   url=$('[name=path]')[0].value+$('[name=api]')[0].value;
   $("#api-status").html('Running');
-  $("#api-result-content").html('Method :'+ type +'<br/>url: ' + url);
-  console.log($('[name=data]')[0].value);
+  $("#api-method").html('Method: ' + type);
+  $("#api-url").html('url: '+ url);
   data=JSON.parse($('[name=data]')[0].value);//
   $.ajax({
     type: type,
     url: url,
     data: data,
     success: function(data,status,xhr){
+      console.log(data);
       $("#api-status").html(status);
-      $("#api-result-content").html('<pre>'+xhr.responseText+'</pre>');
-      $("#api-result-info").html('info:'+data['data_INPUT'].info);
+      $("#api-result-content").html('result objecct: [see console]<pre>'+xhr.responseText+'</pre>');
     }
   });
 }
