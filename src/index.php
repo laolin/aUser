@@ -204,6 +204,35 @@ class bookHandler {
     }
     
     
+    function put($id=0) {
+      $res=[];
+      $id=intVal($id);
+      
+      parse_str(file_get_contents('php://input'),$input);
+      
+      if($id==0&&isset($input['id']))$id=intVal($input['id']);
+      
+      if($id) {  
+        
+        $va=$this->dataValidate($input);
+        if($va['count']<=1) { //没有有效数据，只有1个time是系统自动的
+          $res['info']=$res['error']="ERROR: no validate data (id=$id)";
+        } else {
+          $res['info']="You want to update the book #$id @".$GLOBALS['time'];
+          $to_upd=$GLOBALS['db']->get("book",'*',['id'=>$id]);
+          if($to_upd) {
+            $res['res']=$to_upd;
+            $GLOBALS['db']->update("book",$va['data'],['id'=>$id]);
+          } else {
+            $res['res']="Nothing updated (id=$id)";
+          }
+        }
+      } else {
+        $res['info']=$res['error']="ERROR: Invalid id to be deleted(#$id)";
+      }
+      echoRestfulData($res);
+    }
+    
     function delete($id=0) {
       $res=[];
       $id=intVal($id);
@@ -227,6 +256,39 @@ class bookHandler {
       echoRestfulData($res);
     }
     
+    //功能：检查输入的数据，并返回能用于数据库操作的数据
+    //参数:$in 输入的数据
+    //返回：
+    //  $ret['errorinfo']：数据检查出错信息，空字符串表示没有出错。
+    //  $ret['count']：可用的数据数量
+    //  $ret['data']：可用的数据
+    function dataValidate($in){
+      $dat=[];
+      $error='';
+      $ok=0;
+      if(strlen($in['title'])<2)
+        $error.=' Invalid title.';
+      else {
+        $ok++;
+        $dat['title']=$in['title'];
+      }
+      if(intval($in['rating'])<=0||intval($in['rating'])>10)
+        $error.=' Valid rating:(0,10].';
+      else {
+        $ok++;
+        $dat['rating']=intval($in['rating']);
+      }
+      if(floatval($in['price'])<=0)
+        $error.=' Invalid price.';
+      else {
+        $ok++;
+        $dat['price']=floatval($in['price']);
+      }
+      $ok++;
+      $dat['time']=time();
+      return [ 'errorinfo'=> $error, 'count'=>$ok,'data'=>$dat ];
+    }
+        
     function abc(){
     
       $db->insert("book", [
