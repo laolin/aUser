@@ -50,6 +50,11 @@ ToroHook::add("404",  function() {
 
 
 //WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
+/*
+api: hello
+method: get, post, put, delete
+功能：就是测试用的，没有什么别的功能。
+*/
 class SplashHandler{
     function get() {
       $res=['Welcome'=> "Hello, world!",
