@@ -93,6 +93,59 @@ class SplashHandler{
       echoRestfulData($res);
     }
 }
+//BBBBBBBBBBBBBBBBBBBBBBBBBBBBB
+/*
+api: books
+api: books/id // :number
+
+method: get
+  【功能】 列表
+  有id时，列出一个数据，
+  无id时，列出一页。
+  
+  【参数】
+  id: 可选，当api URI中未指定id时，可在此指定id，有效值>=1。
+  page: 可选，有效值>=1，默认1
+  perpage: 可选，有效值[2,200] 默认10
+  
+  【返回值】
+  data['res']是查询到的数据内容。
+  
+  【说明】
+  默认倒排序，所以第一页显示的是最后几个数据。
+  
+  【示例】
+  GET /books            //列出第一页
+  GET /books/8          //列出id=8的
+  GET /books?id=8       //列出id=8的
+  
+  GET /books?page=3     //列出第3页(第21~30个数据)
+  GET /books?page=3&perpage=100     //列出第3页(第201~300个数据)
+  
+  
+method: post
+  【功能】 create
+  有id时：非法请求，
+  无id时，创建一个数据。
+  
+  【参数】
+  title: 必选，字符串。长度应大于2
+  rating: 必选，整数。有效范围：(0,10]
+  price:  必选，浮点数。 有效范围：(0,无穷大)
+  
+  【返回值】
+  data['res']是创建的数据内容。
+  
+  
+method: put
+  【功能】 updata
+  （未完成）
+  
+method: delete
+  【功能】 delete
+  （未完成）
+
+*/
 class bookHandler {
     function get($name=0) {
       $res=[];
