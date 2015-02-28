@@ -286,25 +286,6 @@ class bookHandler {
       $dat['time']=time();
       return [ 'errorinfo'=> $error, 'count'=>$ok,'data'=>$dat ];
     }
-        
-    function abc(){
-    
-      $db->insert("book", [
-        "title" => "$dt",
-        'rating'=>rand()%10,
-        "time" => rand(),
-        'price'=>rand()%100
-      ]);
-
-      $db->update("book",['price'=>rand()%10000/100,'rating'=>rand()%10],
-        ['id[~]'=>"%".(rand()%10)]
-      );
-
-      // */
-
-      //$db->delete("book", ['time[<]'=>55555] );
-
-    }
 }
 
 Toro::serve([
