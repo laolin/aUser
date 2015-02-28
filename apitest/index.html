@@ -107,6 +107,7 @@ function ajax(type) {
   $("#api-status").html('Running');
   $("#api-method").html('Method: ' + type);
   $("#api-url").html('url: '+ url);
+  $("#api-result-content").html(' ');
   data=JSON.parse($('[name=data]')[0].value);//
   $.ajax({
     type: type,
