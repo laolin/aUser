@@ -100,8 +100,8 @@ api: books/id // :number
 
 method: get
   【功能】 列表
-  有id时，列出一个数据，
   无id时，列出一页。
+  有id时，列出一个数据。
   
   【参数】
   id: 可选，当api URI中未指定id时，可在此指定id，有效值>=1。
@@ -125,8 +125,8 @@ method: get
   
 method: post
   【功能】 create
-  有id时：非法请求，
   无id时，创建一个数据。
+  有id时：非法请求。
   
   【参数】
   title: 必选，字符串。长度应大于2
@@ -143,13 +143,17 @@ method: put
   
 method: delete
   【功能】 delete
-  （未完成）
+  无id时，非法请求，
+  有id时：删除一个数据。
+  
+  【参数】
+  id: 可选，当api URI中未指定id时，可在此指定id，有效值>=1。
 
 */
 class bookHandler {
-    function get($name=0) {
+    function get($id=0) {
       $res=[];
-      $id=intVal($name);
+      $id=intVal($id);
       if($id==0&&isset($_GET['id']))$id=intVal($_GET['id']);
       if($id) { 
         $res['info']="You see the book #$id @".$GLOBALS['time'];
@@ -170,8 +174,9 @@ class bookHandler {
       echoRestfulData($res);
     }
     
-    function post($name) {
-      $id=intVal($name);
+    function post($id=0) {
+      $res=[];
+      $id=intVal($id);
       if($id) {
         $res['info']=$res['error']="ERROR: Can't POST with id(#$id)";
       } else {
@@ -198,6 +203,29 @@ class bookHandler {
       echoRestfulData($res);
     }
     
+    
+    function delete($id=0) {
+      $res=[];
+      $id=intVal($id);
+      
+      parse_str(file_get_contents('php://input'),$input);
+      
+      if($id==0&&isset($input['id']))$id=intVal($input['id']);
+      if($id) { 
+        $res['info']="You want to delete the book #$id @".$GLOBALS['time'];
+        
+        $to_del=$GLOBALS['db']->get("book",'*',['id'=>$id]);
+        if($to_del) {
+          $res['res']=$to_del;
+          $GLOBALS['db']->delete("book",['id'=>$id]);
+        } else {
+          $res['res']='Nothing deleted.';
+        }
+      } else {
+        $res['info']=$res['error']="ERROR: Invalid id to be deleted(#$id)";
+      }
+      echoRestfulData($res);
+    }
     
     function abc(){
     
