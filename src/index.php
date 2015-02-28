@@ -180,23 +180,13 @@ class bookHandler {
       if($id) {
         $res['info']=$res['error']="ERROR: Can't POST with id(#$id)";
       } else {
-        $error='';
-        if(strlen($_POST['title'])<2)
-          $error.=' Invalid title.';
-        if(intval($_POST['rating'])<=0||intval($_POST['rating'])>10)
-          $error.=' Valid rating:(0,10].';
-        if(floatval($_POST['price'])<=0)
-          $error.=' Invalid price.';
+        $va=$this->dataValidate($_POST);
         
-        $dat['title']=$_POST['title'];
-        $dat['rating']=intval($_POST['rating']);
-        $dat['price']=floatval($_POST['price']);
-        $dat['time']=time();
-        if($error)
-          $res['error']=$error;
+        if($va['errorinfo'])
+          $res['error']=$va['errorinfo'];
         else {
           $res['info']="You create a book";
-          $rid=$GLOBALS['db']->insert("book",$dat);
+          $rid=$GLOBALS['db']->insert("book",$va['data']);
           $res['res']=$GLOBALS['db']->get("book",'*',['id'=>$rid]);
         }
       }
@@ -221,7 +211,7 @@ class bookHandler {
           $res['info']="You want to update the book #$id @".$GLOBALS['time'];
           $to_upd=$GLOBALS['db']->get("book",'*',['id'=>$id]);
           if($to_upd) {
-            $res['res']=$to_upd;
+            $res['old']=$to_upd;
             $GLOBALS['db']->update("book",$va['data'],['id'=>$id]);
           } else {
             $res['res']="Nothing updated (id=$id)";
