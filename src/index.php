@@ -38,7 +38,7 @@ function echoRestfulData($data,$jsonp='') {
     echo $jsonp.' ( ';
   }
   
-  echo json_encode($data,JSON_PRETTY_PRINT);
+  echo json_encode($data,JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE);
   
   if(strlen($jsonp)>0) {
     echo ' ); ';
@@ -46,18 +46,49 @@ function echoRestfulData($data,$jsonp='') {
 }
 
 ToroHook::add("404",  function() {
-  $err=['error_code'=> 404,
-    'error'=> 'Error API parameters.'];
+  $err=['code'=> 404,
+    'msg'=> 'Unknow API or unsupport method.'];
   echoRestfulData($err);
 });
 
 
+/**
+ * 取得用户提交的数据的快捷函数
+ *
+ * 提取指定下标的用户输入的*$_GET*或*$_POST*或 *PUT* , *DELETE*提交来的数据
+ * 并可避免*$key*不存在的notice警告
+ *
+ * @param string $key 指定的下标
+ *
+ * @param string $method 可选值*[get|post|put|delete|request]* 。
+ *     默认request，使用$_REQUEST 。
+ *     指定get或post时，分别使用 $_GET或$_POST 。
+ *     指定put或delete时，使用file_get_contents('php://input')
+ *       来获取用PUT或DELETE方式提资过来的数据。
+ *
+ * @return mix 返回下标$key对应的数据。下标不存在时返回false 。
+ *
+ * @author Laolin 
+*/
+function v( $key, $method='request' )
+{
+  $var = $method=='get' ? $_GET :
+      $method=='post' ? $_POST :
+      $method=='put' || $method=='delete' ? 0 : $_REQUEST;
+  if(!$var) parse_str(file_get_contents('php://input'),$var);//put || delete
+  
+  return isset( $var[$key] ) ? $var[$key] : false;
+}
+
 require_once 'apis/api.hello.php';
 require_once 'apis/api.books.php';
-
+require_once 'apis/api.pinyin.php';
 
 Toro::serve([
     
+    "/pinyin/(.*)" => "pinyin_Handler",
+    "/pinyin" => "pinyin_Handler",
+   
     "/books/([0-9]+)" => "books_Handler",
     "/books" => "books_Handler",
     
