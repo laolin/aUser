@@ -9,6 +9,7 @@ class Toro
         if (!empty($_SERVER['PATH_INFO'])) {
             $path_info = $_SERVER['PATH_INFO'];
         }
+        /* What these codes do?? It's wrong for the '/' router!
         else if (!empty($_SERVER['ORIG_PATH_INFO']) && $_SERVER['ORIG_PATH_INFO'] !== '/index.php') {
             $path_info = $_SERVER['ORIG_PATH_INFO'];
         }
@@ -17,6 +18,7 @@ class Toro
                 $path_info = (strpos($_SERVER['REQUEST_URI'], '?') > 0) ? strstr($_SERVER['REQUEST_URI'], '?', true) : $_SERVER['REQUEST_URI'];
             }
         }
+        */
         
         $discovered_handler = null;
         $regex_matches = array();
