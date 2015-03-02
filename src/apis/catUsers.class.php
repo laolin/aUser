@@ -56,8 +56,10 @@ class catUsers {
       $ret=e(0, 'ok');
       
       //1.时间是否和服务器现在时间差距太大
+      //PHP已设东8区，考虑最大时差范围可能是 -20 ~ +4
+      //故允许时间差 -21 ~ 5 小时
       $esp=time()-$action_time;
-      if($esp>600 || $esp<-600)
+      if($esp> 21 * 3600 || $esp< -5 * 3600)
         return e(2001, "Time Mismatch, yours: $action_time, mine: ".time());
         
       //2.用户是否存在
