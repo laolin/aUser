@@ -50,8 +50,9 @@ method: post
   
   
 method: put
-  【功能】 updata
-  （未完成）
+  【功能】 update
+  无id时，非法请求，
+  有id时：更新一个数据。
   
 method: delete
   【功能】 delete

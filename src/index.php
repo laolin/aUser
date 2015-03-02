@@ -45,10 +45,33 @@ function echoRestfulData($data,$jsonp='') {
   }
 }
 
+/**
+ * 返回错误信息数据的快捷函数
+ *
+ * @param int $code 错误代码，通常用0代表没有出错。
+ *
+ * @param string $msg 错误信息。
+ *
+ * @param object &$param 默认null，当指定此参数时，是个*引用传递*
+ *   会把错误代码、错误信息直接写到此变量中。
+ *
+ * @return object 如果指定了第三个参数 $param ，则返回 $param 
+ *    否则返回一个新的数组。
+ *
+ * @author Laolin 
+*/
+function e( $code, $msg='', &$param = null) {
+  if ( $param == null ) {
+    return [ 'err_code'=> $code , 'msg'=> $msg ];
+  }
+  $param['err_code']= $code;
+  $param['msg']= $msg;
+  return $param;
+}
+
+
 ToroHook::add("404",  function() {
-  $err=['code'=> 404,
-    'msg'=> 'Unknow API or unsupport method.'];
-  echoRestfulData($err);
+  echoRestfulData(e(404,'Unknow API or unsupport method.'));
 });
 
 
@@ -77,14 +100,18 @@ function v( $key, $method='request' )
       $method=='put' || $method=='delete' ? 0 : $_REQUEST;
   if(!$var) parse_str(file_get_contents('php://input'),$var);//put || delete
   
-  return isset( $var[$key] ) ? $var[$key] : false;
+  return isset( $var[$key] ) ? trim($var[$key]) : false;
 }
 
 require_once 'apis/api.hello.php';
 require_once 'apis/api.books.php';
 require_once 'apis/api.pinyin.php';
+require_once 'apis/api.users.php';
 
 Toro::serve([
+    "/users/([a-zA-Z][a-zA-Z0-9-_]+)" => "users_Handler",
+    "/users/([1-9][0-9]*)" => "users_Handler",
+    "/users" => "users_Handler",
     
     "/pinyin/(.*)" => "pinyin_Handler",
     "/pinyin" => "pinyin_Handler",
