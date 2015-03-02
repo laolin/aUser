@@ -109,8 +109,7 @@ require_once 'apis/api.pinyin.php';
 require_once 'apis/api.users.php';
 
 Toro::serve([
-    "/users/([a-zA-Z][a-zA-Z0-9-_]+)" => "users_Handler",
-    "/users/([1-9][0-9]*)" => "users_Handler",
+    "/users/([a-zA-Z0-9-_]+)" => "users_Handler",
     "/users" => "users_Handler",
     
     "/pinyin/(.*)" => "pinyin_Handler",
