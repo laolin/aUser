@@ -33,11 +33,19 @@ class catUsers {
     private $_table='cat_user';
     
     
-    public function login($user, $login_time, $action_token) {
-      $ret=cat($user,'login', $login_time, $action_token);
-      if($ret['err_code']==0)
-        return true;
-      return false;
+    public function add_user($user, $action, $action_time, $action_token,
+        $email, $pass_token ) {
+      $rit_token=$this->gen_action_token($user, $action, $action_time, $pass_token);
+      if($rit_token != $action_token )
+        return e(2003, "Token error. $user, f=$action, t=$action_time, $email, $pass_token" );
+
+      $rs=$GLOBALS['db']->insert($this->_table,
+        [ 'user' => $user, 'email' => $email,
+        'pass_token' => $pass_token, 'user_group' => 'default',
+        'create_time' => time() ] );
+      if($rs<=0)      
+        return e(2004, 'Create user error. Please contact the administrator!' );
+      return e(0,"User [ $user ] created, the user id is [ $rs ].");
     }
     
     /**
@@ -46,12 +54,16 @@ class catUsers {
      * 验证 action_token 是不是对的
      *
      * @param $user 用户名
-     * @param $action_finger 从本次提交的操作和数据中提取的“动作指纹”
+     * @param $action 从本次提交的操作名称字符串（由应用自己定义，客户端、服务器要一致）
      * @param $action_time 函数执行时的时间戳，用于避免数据篡改
      * @param $action_token 从上面3个参数，加上用户自已的密码 pass_token 共4个变量一起计算出来的验证字符串
+     * 
+     * @return array AR()
+     *   ARR['err_code']==0 时表示通过验证，
+     *   否则表示没有通过验证，出错信息在ARR['msg']中。
      */
-    public function cat($user, $action_finger, $action_time, $action_token ) {
-    //public function check_action_token($user, $action_finger, $action_time, $action_token ) {
+    public function cat($user, $action, $action_time, $action_token ) {
+    //public function check_action_token($user, $action, $action_time, $action_token ) {
 
       $ret=e(0, 'ok');
       
@@ -64,14 +76,14 @@ class catUsers {
         
       //2.用户是否存在
       $pass_token=$this->get_pass_token($user);
-      if(0===$pass_token)
-        return e(2002, 'User Verification fail.');
+      if(false===$pass_token)
+        return e(2002, 'User not exist.');
         
       //3.action_finger应该在服务器自己计算对比?
       //  （或不要客户端的，在服务端自己提取）
       
       //4.加上pass_token，计算
-      $rit_token=$this->gen_action_token($user,$action_finger,$action_time,$pass_token);
+      $rit_token=$this->gen_action_token($user,$action,$action_time,$pass_token);
       if($rit_token != $action_token)
         $ret=e(2000, 'Action Authentication fail.');
       return $ret;
@@ -81,7 +93,8 @@ class catUsers {
      * 3. 由4个变量一起计算出来一个验证字符串
      *  @seealso check_action_token
     */    
-    private function gen_action_token($user,$action_finger,$action_time,$pass_token) {
+    private function gen_action_token($user,$action,$action_time,$pass_token) {
+      $action_finger=md5($pass_token . $action . $action_time);
       $ret=md5(strtolower($user) . $action_finger . $action_time . $pass_token);
       return $ret;
     }
@@ -115,7 +128,7 @@ class catUsers {
         $res=$GLOBALS['db']->select($this->_table,
           ['user','pass_token'],$where);
       return isset($res[0])&&isset($res[0]['pass_token'])?
-        $res[0]['pass_token'] : 0 ;
+        $res[0]['pass_token'] : false ;
     }
     
 }
