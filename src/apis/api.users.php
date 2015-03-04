@@ -47,17 +47,19 @@ class users_Handler {
     function post( ) {
       $uc= new catUsers();
       
-      $action=v('action');
+      $prefix=v('__catusers_prefix');
+
+      $action=v($prefix.'action');
       $ret=e(1001,"Unknow action ($action).");
       
-      $uname=v('user');
+      $uname=v($prefix.'user');
       $email=filter_var(v('email'),FILTER_VALIDATE_EMAIL);
       
-      $otoken=v('otoken');
-      $ptoken=v('ptoken');
+      $otoken=v($prefix.'otoken');
+      $ptoken=v($prefix.'ptoken');
       
-      $atoken=v('atoken');
-      $time=v('time');
+      $atoken=v($prefix.'atoken');
+      $time=v($prefix.'time');
       switch($action) {
         case 'reg':
           if(!eregi('[a-z][a-z0-9_]+',$uname))

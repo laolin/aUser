@@ -3,10 +3,11 @@
 /**
  * 根据用户名，密码生成 提交 reg 的post数据
  */
-function gen_reg_data(user,password,email) {
-  d=gen_action_data(user,password,'reg')
-  d.ptoken=gen_pass_token(user,password)
-  d.email=email
+function gen_reg_data(user,password,email,prefix) {
+  prefix=prefix||""
+  d=gen_action_data(user,password,'reg',prefix)
+  d[prefix+'ptoken']=gen_pass_token(user,password)
+  d[prefix+'email']=email
   console.log(JSON.stringify(d,null,"\t"))
   return d;
 }
@@ -14,15 +15,17 @@ function gen_reg_data(user,password,email) {
 /**
  * 根据用户名，密码生成 提交 action 的post数据
  */
-function gen_action_data(user,password,action) {
+function gen_action_data(user,password,action,prefix) {
+  prefix=prefix||""
   time=Math.round( (new Date().getTime()/1000))
   atoken=gen_action_token(user, action, time, password)
-  d={
-    user:user,
-    action:action,
-    time:time,
-    atoken:atoken
-  }
+  d={}
+    d['__catusers_prefix']=prefix
+    d[prefix+'user']=user
+    d[prefix+'action']=action
+    d[prefix+'time']=time
+    d[prefix+'atoken']=atoken
+  
   console.log(JSON.stringify(d,null,"\t"))
   return d
 }
