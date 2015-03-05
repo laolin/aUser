@@ -55,14 +55,14 @@ class catUsers {
       $pass_token=$this->_input['pass_token'];
       $email=$this->_input['email'];
       
-      if(!eregi('[a-z][a-z0-9_]+',$user))
+      if(!eregi('^[a-z][a-z0-9_]+$',$user))
         return e(1002,'Username invalid.');
       if(false===$email)
         return e(1003,'Email invalid.');
       if(strlen($pass_token)!=32) 
         return e(1004,'Error PASS Token.');
       if(false !== $this->get_pass_token($user))
-        return e(1005,"User [ $uname ] already exists.");
+        return e(1005,"User [ $user ] already exists.");
             
             
       $rit_token=$this->gen_action_token($user, $action, $action_time, $pass_token);
