@@ -31,10 +31,40 @@
 class catUsers {
     private $_md5Salt='Laolin_user_PUSHAN';
     private $_table='cat_user';
+    private $_input=[];
     
-    
-    public function add_user($user, $action, $action_time, $action_token,
-        $email, $pass_token ) {
+    private function get_input($method='request') {
+      $this->_input['prefix']=v('__catusers_prefix',$method);
+      $this->_input['user']=v($prefix.'user',$method);
+      $this->_input['action']=v($prefix.'action',$method);
+      $this->_input['action_time']=v($prefix.'time',$method);
+      $this->_input['action_token']=v($prefix.'atoken',$method);
+      $this->_input['pass_token']=v($prefix.'ptoken',$method);
+      $this->_input['email']=filter_var(v('email',$method),FILTER_VALIDATE_EMAIL);
+      
+      
+      $this->_input['orign_token']=v($prefix.'otoken',$method);
+    }
+    public function add_user() {
+      $this->get_input();
+      $user=$this->_input['user'];
+      $action=$this->_input['action'];
+      $action_time=$this->_input['action_time'];
+      $action_token=$this->_input['action_token'];
+      
+      $pass_token=$this->_input['pass_token'];
+      $email=$this->_input['email'];
+      
+      if(!eregi('[a-z][a-z0-9_]+',$user))
+        return e(1002,'Username invalid.');
+      if(false===$email)
+        return e(1003,'Email invalid.');
+      if(strlen($pass_token)!=32) 
+        return e(1004,'Error PASS Token.');
+      if(false !== $this->get_pass_token($user))
+        return e(1005,"User [ $uname ] already exists.");
+            
+            
       $rit_token=$this->gen_action_token($user, $action, $action_time, $pass_token);
       if($rit_token != $action_token )
         return e(2003, "Token error. $user, f=$action, t=$action_time, $email, $pass_token" );
@@ -62,8 +92,14 @@ class catUsers {
      *   ARR['err_code']==0 时表示通过验证，
      *   否则表示没有通过验证，出错信息在ARR['msg']中。
      */
-    public function cat($user, $action, $action_time, $action_token ) {
-    //public function check_action_token($user, $action, $action_time, $action_token ) {
+    public function cat( ) {
+    //public function check_action_token( ) {
+      $this->get_input();
+      $user=$this->_input['user'];
+      $action=$this->_input['action'];
+      $action_time=$this->_input['action_time'];
+      $action_token=$this->_input['action_token'];
+
 
       $ret=e(0, 'ok');
       
@@ -109,13 +145,25 @@ class catUsers {
     /**
      * 1b. 在数据库中 设置用户的 pass_token
      */
-    function set_pass_token($user, $token) {
-        $where = [  ];
-        $where["user"] = $user;//MYSQL自动为大小写不敏感
-        $where["LIMIT"] = 1;
-        $res=$GLOBALS['db']->update($this->_table,
-          [ 'pass_token' => $token ],$where);
-        return $res;
+    function set_pass_token( ) {
+      $this->get_input();
+      $otoken=$this->_input['orign_token'];
+      
+      $ret=$this->cat( );
+      if($ret['err_code'] !== 0)
+        return $ret;
+        
+      $right_ot=$this->get_pass_token($this->_input['user']);
+      if($right_ot !== $otoken) 
+        return e(1006,'Reset password FAILED!');
+                
+      $where = [  ];
+      $where["user"] = $this->_input['user'];//MYSQL自动为大小写不敏感
+      $where["LIMIT"] = 1;
+      $res=$GLOBALS['db']->update($this->_table,
+        [ 'pass_token' => $this->_input['pass_token'] ],$where);
+      if( $res ) return e(0,'Password resset success.');
+      else return e(1007,'Password resset fail.');;
     }
     /**
      * 1. 从数据库中 读取用户的 pass_token

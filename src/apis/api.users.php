@@ -48,51 +48,21 @@ class users_Handler {
       $uc= new catUsers();
       
       $prefix=v('__catusers_prefix');
-
       $action=v($prefix.'action');
       $ret=e(1001,"Unknow action ($action).");
       
-      $uname=v($prefix.'user');
-      $email=filter_var(v('email'),FILTER_VALIDATE_EMAIL);
-      
-      $otoken=v($prefix.'otoken');
-      $ptoken=v($prefix.'ptoken');
-      
-      $atoken=v($prefix.'atoken');
-      $time=v($prefix.'time');
       switch($action) {
         case 'reg':
-          if(!eregi('[a-z][a-z0-9_]+',$uname))
-            $ret=e(1002,'Username invalid.');
-          else if(false===$email)
-            $ret=e(1003,'Email invalid.');
-          else if(strlen($ptoken)!=32) 
-            $ret=e(1004,'Error PASS Token.');
-          else if(false !== $uc->get_pass_token($user))
-            $ret=e(1005,"User [ $uname ] already exists.");
-          else {
-            $ret=$uc->add_user($uname,$action,$time,$atoken,
-              $email,$ptoken);
-          }
+          $ret=$uc->add_user();
           break;
         case 'password':
-        
-            $r1=$uc->cat($uname,$action,$time,$atoken);
-            if($r1['err_code'] === 0) {
-              $right_ot=$uc->get_pass_token($uname);
-              if($right_ot !== $otoken) 
-                $ret= e(1006,'Reset password FAILED!');
-              else {
-                $uc->set_pass_token($uname,$ptoken);
-                $ret=e(0,'Reset password success.');
-              }
-            }
+          $ret=$uc->set_pass_token( );
           break;
         case 'login':
         case 'a':
         case 'auth':
         default:
-          $ret=$uc->cat($uname,$action,$time,$atoken);
+          $ret=$uc->cat( );
           $ret['action']= $action ;
       }
       
