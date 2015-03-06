@@ -33,18 +33,7 @@ class catUsers {
     private $_table='cat_user';
     private $_input=[];
     
-    private function get_input($method='request') {
-      $this->_input['prefix']=v('__catusers_prefix',$method);
-      $this->_input['user']=v($prefix.'user',$method);
-      $this->_input['action']=v($prefix.'action',$method);
-      $this->_input['action_time']=v($prefix.'time',$method);
-      $this->_input['action_token']=v($prefix.'atoken',$method);
-      $this->_input['pass_token']=v($prefix.'ptoken',$method);
-      $this->_input['email']=filter_var(v('email',$method),FILTER_VALIDATE_EMAIL);
-      
-      
-      $this->_input['orign_token']=v($prefix.'otoken',$method);
-    }
+    
     public function add_user() {
       $this->get_input();
       $user=$this->_input['user'];
@@ -125,22 +114,6 @@ class catUsers {
       return $ret;
     }
     
-    /**
-     * 3. 由4个变量一起计算出来一个验证字符串
-     *  @seealso check_action_token
-    */    
-    private function gen_action_token($user,$action,$action_time,$pass_token) {
-      $action_finger=md5($pass_token . $action . $action_time);
-      $ret=md5(strtolower($user) . $action_finger . $action_time . $pass_token);
-      return $ret;
-    }
-    
-    /**
-     * 2. 根据用户名，密码生成 gen_pass_token
-     */
-    private function gen_pass_token($user,$password) {
-      return md5($this->_md5Salt . strtolower($user) . $password  );
-    }
     
     /**
      * 1b. 在数据库中 设置用户的 pass_token
@@ -167,6 +140,38 @@ class catUsers {
       if( $res ) return e(0,'Password reset success.');
       else return e(1007,'Password reset fail.');;
     }
+    
+    
+    private function get_input($method='request') {
+      $this->_input['prefix']=v('__catusers_prefix',$method);
+      $this->_input['user']=v($prefix.'user',$method);
+      $this->_input['action']=v($prefix.'action',$method);
+      $this->_input['action_time']=v($prefix.'time',$method);
+      $this->_input['action_token']=v($prefix.'atoken',$method);
+      $this->_input['pass_token']=v($prefix.'ptoken',$method);
+      $this->_input['email']=filter_var(v('email',$method),FILTER_VALIDATE_EMAIL);
+      
+      
+      $this->_input['orign_token']=v($prefix.'otoken',$method);
+    }
+    
+    /**
+     * 3. 由4个变量一起计算出来一个验证字符串
+     *  @seealso check_action_token
+    */    
+    private function gen_action_token($user,$action,$action_time,$pass_token) {
+      $action_finger=md5($pass_token . $action . $action_time);
+      $ret=md5(strtolower($user) . $action_finger . $action_time . $pass_token);
+      return $ret;
+    }
+    
+    /**
+     * 2. 根据用户名，密码生成 gen_pass_token
+     */
+    private function gen_pass_token($user,$password) {
+      return md5($this->_md5Salt . strtolower($user) . $password  );
+    }
+    
     /**
      * 1. 从数据库中 读取用户的 pass_token
      */
