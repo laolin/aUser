@@ -47,15 +47,14 @@ class users_Handler {
     function post( ) {
       $uc= new catUsers();
       
-      $prefix=v('__catusers_prefix');
-      $action=v($prefix.'action');
+      $action=v('action');
       $ret=e(1001,"Unknow action ($action).");
       
       switch($action) {
         case 'reg':
           $ret=$uc->add_user();
           break;
-        case 'password':
+        case 'chgpwd':
           $ret=$uc->set_pass_token( );
           break;
         case 'login':
