@@ -67,7 +67,7 @@ class catUsers {
             
       $rit_token=$this->gen_action_token($user, $action, $action_time, $pass_token);
       if($rit_token != $action_token )
-        return e(2003, "Token error. $user, f=$action, t=$action_time, $email, $pass_token" );
+        return e(2003, "Token error: $action_token" );
 
       $rs=$GLOBALS['db']->insert($this->_table,
         [ 'user' => $user, 'email' => $email,
@@ -138,14 +138,14 @@ class catUsers {
     /**
      * 2. 根据用户名，密码生成 gen_pass_token
      */
-    function gen_pass_token($user,$password) {
+    private function gen_pass_token($user,$password) {
       return md5($this->_md5Salt . strtolower($user) . $password  );
     }
     
     /**
      * 1b. 在数据库中 设置用户的 pass_token
      */
-    function set_pass_token( ) {
+    public function set_pass_token( ) {
       $this->get_input();
       $otoken=$this->_input['orign_token'];
       
@@ -155,20 +155,22 @@ class catUsers {
         
       $right_ot=$this->get_pass_token($this->_input['user']);
       if($right_ot !== $otoken) 
-        return e(1006,'Reset password FAILED!');
+        return e(1006,'Orignal token error.');
+      if( 32 !== strlen($this->_input['pass_token'])) 
+        return e(1008,'New token error.');
                 
       $where = [  ];
       $where["user"] = $this->_input['user'];//MYSQL自动为大小写不敏感
       $where["LIMIT"] = 1;
       $res=$GLOBALS['db']->update($this->_table,
         [ 'pass_token' => $this->_input['pass_token'] ],$where);
-      if( $res ) return e(0,'Password resset success.');
-      else return e(1007,'Password resset fail.');;
+      if( $res ) return e(0,'Password reset success.');
+      else return e(1007,'Password reset fail.');;
     }
     /**
      * 1. 从数据库中 读取用户的 pass_token
      */
-    function get_pass_token($user) {
+    private function get_pass_token($user) {
         $where = [  ];
         $where["user"] = $user;//MYSQL自动为大小写不敏感
         $where["LIMIT"] = 1;
