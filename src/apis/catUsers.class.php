@@ -85,9 +85,9 @@ class catUsers {
      *   ARR['err_code']==0 时表示通过验证，
      *   否则表示没有通过验证，出错信息在ARR['msg']中。
      */
-    public function cat( $action_finger ) {
+    public function cat( $action_finger ,$method='request' ) {
     //public function check_action_token( ) {
-      $this->get_input();
+      $this->get_input($method);
       $user=$this->_input['user'];
       $action_time=$this->_input['action_time'];
       $action_token=$this->_input['action_token'];
