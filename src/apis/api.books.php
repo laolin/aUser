@@ -1,4 +1,5 @@
 <?php
+require_once 'catUsers.class.php';
 
 //BBBBBBBBBBBBBBBBBBBBBBBBBBBBB
 /*
@@ -88,27 +89,37 @@ class books_Handler {
     }
     
     function post($id=0) {
-      $res=[];
+      $uc= new catUsers();
+      $ret=e(0,'ok.');
       $id=intVal($id);
       if($id) {
-        $res['info']=$res['error']="ERROR: Can't POST with id(#$id)";
+        $ret=e(1001,"ERROR: Can't POST with id(#$id)");
       } else {
         $va=$this->dataValidate($_POST);
         
         if($va['errorinfo'])
-          $res['error']=$va['errorinfo'];
+          $ret=e(1002,$va['errorinfo']);
         else {
-          $res['info']="Create a book";
-          $rid=$GLOBALS['db']->insert("book",$va['data']);
-          $res['res']=$GLOBALS['db']->get("book",'*',['id'=>$rid]);
+          
+          //action_finger与客户端算法要一致。防止数据被窃取并篡改后再恶意利用
+          $action_finger= md5('books.create' . $va['data']['title']. $va['data']['rating']. $va['data']['price']);
+          
+          $ret=$uc->cat( $action_finger );
+          if($ret['err_code']==0) {
+            $ret=e(0,"Create a book");
+      
+            $rid=$GLOBALS['db']->insert("book",$va['data']);
+            $ret['res']=$GLOBALS['db']->get("book",'*',['id'=>$rid]);
+          }
         }
       }
-      echoRestfulData($res);
+      echoRestfulData($ret);
     }
     
     
     function put($id=0) {
-      $res=[];
+      $uc= new catUsers();
+      $ret=e(0,'ok.');
       $id=intVal($id);
       
       parse_str(file_get_contents('php://input'),$input);
@@ -119,44 +130,56 @@ class books_Handler {
         
         $va=$this->dataValidate($input);
         if($va['count']<=1) { //没有有效数据，只有1个time是系统自动的
-          $res['info']=$res['error']="ERROR: no validate data (id=$id)";
+          $ret=e(2001,"ERROR: no validate data (id=$id)");
         } else {
-          $res['info']="Update the book #$id @".$GLOBALS['time'];
-          $to_upd=$GLOBALS['db']->get("book",'*',['id'=>$id]);
-          if($to_upd) {
-            $res['old']=$to_upd;
-            $GLOBALS['db']->update("book",$va['data'],['id'=>$id]);
-          } else {
-            $res['res']="Nothing updated (id=$id)";
+          //action_finger与客户端算法要一致。防止数据被窃取并篡改后再恶意利用
+          $action_finger= md5('books.update' . $id . $va['data']['title']. $va['data']['rating']. $va['data']['price']);
+          $_REQUEST=$input;
+          $ret=$uc->cat( $action_finger );
+          if($ret['err_code']==0) {
+            $ret=e(0,"Update the book #$id @".$GLOBALS['time']);
+            $to_upd=$GLOBALS['db']->get("book",'*',['id'=>$id]);
+            if($to_upd) {
+              $ret['old']=$to_upd;
+              $GLOBALS['db']->update("book",$va['data'],['id'=>$id]);
+            } else {
+              $ret['res']="Nothing updated (id=$id)";
+            }
           }
         }
       } else {
-        $res['info']=$res['error']="ERROR: Invalid id to be updated(#$id)";
+        $ret=e(2002,"ERROR: Invalid id to be updated(#$id)");
       }
-      echoRestfulData($res);
+      echoRestfulData($ret);
     }
     
     function delete($id=0) {
-      $res=[];
+      $uc= new catUsers();
+      $ret=e(0,'ok.');
       $id=intVal($id);
       
       parse_str(file_get_contents('php://input'),$input);
       
       if($id==0&&isset($input['id']))$id=intVal($input['id']);
-      if($id) { 
-        $res['info']="Delete the book #$id @".$GLOBALS['time'];
-        
-        $to_del=$GLOBALS['db']->get("book",'*',['id'=>$id]);
-        if($to_del) {
-          $res['deleted']=$to_del;
-          $GLOBALS['db']->delete("book",['id'=>$id]);
-        } else {
-          $res['deleted']='Nothing deleted.';
+      if($id) {           
+        //action_finger与客户端算法要一致。防止数据被窃取并篡改后再恶意利用
+        $action_finger= md5('books.delete' . $id );
+        $_REQUEST=$input;
+        $ret=$uc->cat( $action_finger );
+        if($ret['err_code']==0) {
+          $ret=e(0,"Delete the book #$id");
+          $to_del=$GLOBALS['db']->get("book",'*',['id'=>$id]);
+          if($to_del) {
+            $ret['deleted']=$to_del;
+            $GLOBALS['db']->delete("book",['id'=>$id]);
+          } else {
+            $ret=e(3001,'Nothing deleted.');
+          }
         }
       } else {
-        $res['info']=$res['error']="ERROR: Invalid id to be deleted(#$id)";
+        $ret=e(3002,"ERROR: Invalid id to be deleted(#$id)");
       }
-      echoRestfulData($res);
+      echoRestfulData($ret);
     }
     
     //功能：检查输入的数据，并返回能用于数据库操作的数据

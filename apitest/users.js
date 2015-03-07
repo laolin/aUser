@@ -1,6 +1,49 @@
 // 在APItest中的API地址中输入 ./users.js，然后get一下即可加载此JS文件。
 
   
+//--------------------------------------
+function books_create(title,rating,price,  user,password ) {
+  rating=parseInt(rating)
+  ptoken=gen_pass_token(user,password)
+  finger=gen_finger(['books.create',title,rating,price])
+  d=gen_action_data(user,password, finger)
+  
+  d.title=title
+  d.rating=rating
+  d.price=price
+  
+  console.log(JSON.stringify(d,null," "))
+  return d
+}
+function books_update(id,title,rating,price,  user,password ) {
+  id=parseInt(id)
+  rating=parseInt(rating)
+  ptoken=gen_pass_token(user,password)
+  finger=gen_finger(['books.update',id,title,rating,price])
+  d=gen_action_data(user,password, finger)
+  
+  d.id=id
+  if(title)d.title=title
+  if(rating)d.rating=rating
+  if(price)d.price=price
+  
+  console.log(JSON.stringify(d,null," "))
+  return d
+}
+function books_delete(id,  user,password ) {
+  id=parseInt(id)
+  ptoken=gen_pass_token(user,password)
+  finger=gen_finger(['books.delete',id])
+  d=gen_action_data(user,password, finger)
+  
+  d.id=id
+  
+  console.log(JSON.stringify(d,null," "))
+  return d
+}
+
+//--------------------------------------
+
 /**
  * 根据用户名，密码生成 提交 password 的post数据
  */
