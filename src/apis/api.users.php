@@ -60,7 +60,7 @@ class users_Handler {
         case 'a':
         case 'auth':
         default:
-          $ret=$uc->cat( );
+          $ret=$uc->cat( '' );
       }
       if( $action ) $ret['action']= $action ;
       return echoRestfulData($ret);
