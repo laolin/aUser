@@ -45,6 +45,8 @@ class catUsers {
       
       //action_finger与客户端算法要一致。防止数据被窃取并篡改后再恶意利用
       $action_finger=md5('reg' . $user . $pass_token . $email);
+      if($action_finger !== $this->_input['action_finger'])
+        return e(1009,"Action finger should be: $action_finger");
       
       if(!eregi('^[a-z][a-z0-9_]+$',$user))
         return e(1002,'Username invalid.');
@@ -127,8 +129,9 @@ class catUsers {
       $ptoken=$this->_input['pass_token'];
       
       //action_finger与客户端算法要一致。防止数据被窃取并篡改后再恶意利用
-      $action_finger=md5('password' . $user . $ptoken . $ntoken);
-      
+      $action_finger=md5('chgpwd' . $user . $ptoken . $ntoken);
+      if($action_finger !== $this->_input['action_finger'])
+        return e(1009,"Action finger should be: $action_finger");
       $ret=$this->cat( $action_finger );
       if($ret['err_code'] !== 0)
         return $ret;
@@ -155,6 +158,8 @@ class catUsers {
       
       $this->_input['action_time']=v($prefix.'atime',$method);
       $this->_input['action_token']=v($prefix.'atoken',$method);
+      $this->_input['action_finger']=v($prefix.'afinger',$method);
+      
       $this->_input['pass_token']=v($prefix.'ptoken',$method);
       $this->_input['email']=filter_var(v('email',$method),FILTER_VALIDATE_EMAIL);
       

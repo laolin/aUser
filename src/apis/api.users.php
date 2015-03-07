@@ -18,10 +18,10 @@ require_once 'catUsers.class.php';
  *     其他情况返回header中 Content-type: application/json;
  *     
  * @method: get, post （仅可以使用post或get方式）
- * action参数: login, a, auth, pushan
+ * __catusers_action 参数: login, a, auth, pushan
  *   【功能】 用户帐号密码验证，操作验证。
  * 
- * action参数: reg,  password
+ * __catusers_action 参数: reg,  password
  *   【功能】 create 或update。创建一个用户，修改密码。
  *   
  * @method: put
@@ -31,7 +31,7 @@ require_once 'catUsers.class.php';
  *   【功能】 无（不提供删除功能）
  *
  * 【其他参数】
- * //action: login,   a, auth, pushan,   reg,   password。
+ * //__catusers_action: login,   a, auth, pushan,   reg,   password。
  * user: 用户名
  * 
  * otoken: 原先的pass_token，仅在修改密码时 有用。
@@ -47,8 +47,7 @@ class users_Handler {
     function post( ) {
       $uc= new catUsers();
       
-      $action=v('action');
-      $ret=e(1001,"Unknow action ($action).");
+      $action=v('__catusers_action');
       
       switch($action) {
         case 'reg':
@@ -62,9 +61,8 @@ class users_Handler {
         case 'auth':
         default:
           $ret=$uc->cat( );
-          $ret['action']= $action ;
       }
-      
+      if( $action ) $ret['action']= $action ;
       return echoRestfulData($ret);
     }
     
