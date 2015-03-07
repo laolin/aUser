@@ -101,7 +101,7 @@ class catUsers {
       // 允许时间差 -9 ~ 9 分钟
       $esp=round((time()-$action_time) / 60 );
       if($esp> 9 || $esp< -9 )
-        return e(2001, "Time Mismatch, please revise your clock, the time difference is about $esp minutes.");
+        return e(2001, "Time Mismatch, a right value required for 'atime', the time difference is about $esp minutes.");
         
       //2.用户是否存在
       $pass_token=$this->get_pass_token($user);
