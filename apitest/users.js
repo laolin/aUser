@@ -9,7 +9,8 @@ function gen_chgpwd_data(user,password,newpassword  ,prefix){
 
   ptoken=gen_pass_token(user,password)
   ntoken=gen_pass_token(user,newpassword)
-  d=gen_action_data(user,password,'chgpwd',gen_finger(['chgpwd',user,ptoken,ntoken]),prefix)
+  d=gen_action_data(user,password,gen_finger(['chgpwd',user,ptoken,ntoken]),prefix)
+  d.__catusers_action='chgpwd'
   d[prefix+'ptoken']=ptoken
   d[prefix+'ntoken']=ntoken
   console.log(JSON.stringify(d,null," "))
@@ -25,7 +26,9 @@ function gen_chgpwd_data(user,password,newpassword  ,prefix){
 function gen_reg_data(user,password,email,prefix) {
   prefix=prefix||""
   ptoken=gen_pass_token(user,password)
-  d=gen_action_data(user,password,'reg',gen_finger(['reg',user,ptoken,email]),prefix)
+  d=gen_action_data(user,password, gen_finger(['reg',user,ptoken,email]),prefix)
+  d.__catusers_action='reg'
+
   d[prefix+'ptoken']=ptoken
   d[prefix+'email']=email
   console.log(JSON.stringify(d,null," "))
@@ -42,19 +45,19 @@ function gen_finger(ar) {
 /**
  * 根据用户名，密码生成 提交 action 的post数据
  */
-function gen_action_data(user,password,action,afinger,prefix) {
+function gen_action_data(user,password, afinger,  prefix) {
   prefix=prefix||""
   dt=new Date()
   time=Math.round( (dt.getTime()/1000)) - 480*60 - dt.getTimezoneOffset()*60;//修正为东8区
   atoken=gen_action_token(user, afinger, time, password)
-  d={action:action}
+  d={}
     if(prefix) d['__catusers_prefix']=prefix
     d[prefix+'user']=user
-    //d[prefix+'afinger']=afinger
+    d[prefix+'afinger']=afinger
     d[prefix+'atime']=time
     d[prefix+'atoken']=atoken
   
-  console.log(JSON.stringify(d,null," "))
+  //console.log(JSON.stringify(d,null," "))
   return d
 }
 
