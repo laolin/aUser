@@ -97,8 +97,9 @@ function v( $key, $method='request' )
 {
   $var = $method=='get' ? $_GET :
       $method=='post' ? $_POST :
-      $method=='put' || $method=='delete' ? 0 : $_REQUEST;
-  if(!$var) parse_str(file_get_contents('php://input'),$var);//put || delete
+      $_REQUEST;
+  //    $method=='put' || $method=='delete' ? 0 : $_REQUEST;
+  //if( $var === 0 ) parse_str(file_get_contents('php://input'),$var);//put || delete
   
   return isset( $var[$key] ) ? trim($var[$key]) : false;
 }
